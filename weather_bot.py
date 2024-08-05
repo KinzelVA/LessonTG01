@@ -5,7 +5,7 @@ from aiogram.filters import CommandStart, Command
 from aiogram.types import Message
 
 
-API_KEY = "5e68e3b93496d1dc208a64ca07208f05"  # Замените на ваш API ключ
+API_KEY = "0571c8dec7a964f9d24a2b45888aa0f1"  # Замените на ваш API ключ
 
 bot = Bot(token="6943602251:AAHV3rXWQltWOT8aRXyl7pDahm-6x0kd6vU")
 dp = Dispatcher()
