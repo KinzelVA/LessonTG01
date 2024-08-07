@@ -7,6 +7,8 @@ import random
 from gtts import gTTS
 import os
 from googletrans import Translator, LANGUAGES
+from aiogram.fsm.state import State, StatesGroup
+from aiogram.fsm.context import FSMContext
 
 API_KEY = "0571c8dec7a964f9d24a2b45888aa0f1"  # Замените на ваш API ключ
 
@@ -14,6 +16,8 @@ bot = Bot(token="6943602251:AAHV3rXWQltWOT8aRXyl7pDahm-6x0kd6vU")
 dp = Dispatcher()
 translator = Translator()
 
+class TranslationState(StatesGroup):
+    waiting_for_text = State()
 @dp.message(Command('help'))
 async def help(message: Message):
     await message.answer("Этот бот умеет выполнять команды: \n /start \n /help \n /weather \n /translate \n /voice \n /training")
@@ -56,6 +60,7 @@ async def translate(message: Message):
         await message.answer(f"Перевод:\n{translated.text}")
     except Exception as e:
         await message.answer(f"Ошибка при переводе: {str(e)}")
+
 @dp.message(F.photo)
 async def react_photo(message: Message):
     list = ['Ого, какая фотка!', 'Непонятно, что это такое', 'Не отправляй мне такое больше']
