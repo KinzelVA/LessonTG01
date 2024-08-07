@@ -7,8 +7,11 @@ import random
 from gtts import gTTS
 import os
 from googletrans import Translator, LANGUAGES
-from aiogram.fsm.state import State, StatesGroup
-from aiogram.fsm.context import FSMContext
+import logging
+import executor
+
+logging.basicConfig(level=logging.INFO)
+
 
 API_KEY = "0571c8dec7a964f9d24a2b45888aa0f1"  # Замените на ваш API ключ
 
@@ -16,8 +19,7 @@ bot = Bot(token="6943602251:AAHV3rXWQltWOT8aRXyl7pDahm-6x0kd6vU")
 dp = Dispatcher()
 translator = Translator()
 
-class TranslationState(StatesGroup):
-    waiting_for_text = State()
+
 @dp.message(Command('help'))
 async def help(message: Message):
     await message.answer("Этот бот умеет выполнять команды: \n /start \n /help \n /weather \n /translate \n /voice \n /training")
@@ -48,18 +50,6 @@ async def get_weather(city: str) -> str:
                 return "Не удалось получить данные о погоде. Попробуйте позже."
 
 
-@dp.message(Command('translate'))
-async def translate(message: Message):
-    text_to_translate = message.text[len("/translate "):]
-    if not text_to_translate:
-        await message.answer("Пожалуйста, укажите текст для перевода после команды /translate.")
-        return
-
-    try:
-        translated = translator.translate(text_to_translate, dest='en')
-        await message.answer(f"Перевод:\n{translated.text}")
-    except Exception as e:
-        await message.answer(f"Ошибка при переводе: {str(e)}")
 
 @dp.message(F.photo)
 async def react_photo(message: Message):
@@ -68,6 +58,17 @@ async def react_photo(message: Message):
     await message.answer(rand_answ)
     await bot.download(message.photo[-1], destination=f'tmp/{message.photo[-1].file_id}.jpg')
 
+
+# Хэндлер на команду /start
+@dp.message(Command('translate'))
+async def send_welcome(message: Message):
+    await message.answer("Привет! Напиши мне любой текст, и я переведу его на английский язык.")
+
+# Хэндлер на все остальные сообщения
+@dp.message()
+async def translate_message(message: Message):
+    translated = translator.translate(message.text, dest='en')
+    await message.answer(translated.text)
 
 @dp.message(Command('training'))
 async def training(message: Message):

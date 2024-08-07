@@ -44,6 +44,19 @@ async def get_weather(city: str) -> str:
                 return "Не удалось получить данные о погоде. Попробуйте позже."
 
 
+@dp.message(Command('translate'))
+async def translate(message: Message):
+    text_to_translate = message.text[len("/translate "):]
+    if not text_to_translate:
+        await message.answer("Пожалуйста, укажите текст для перевода после команды /translate.")
+        return
+
+    try:
+        translated = translator.translate(text_to_translate, dest='en')
+        await message.answer(f"Перевод:\n{translated.text}")
+    except Exception as e:
+        await message.answer(f"Ошибка при переводе: {str(e)}")
+
 
 @dp.message(F.photo)
 async def react_photo(message: Message):
