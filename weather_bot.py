@@ -1,18 +1,22 @@
 import asyncio
 import aiohttp
-from aiogram import Bot, Dispatcher
+from aiogram import Bot, Dispatcher, F
 from aiogram.filters import CommandStart, Command
-from aiogram.types import Message
-
+from aiogram.types import Message, FSInputFile
+import random
+from gtts import gTTS
+import os
+from googletrans import Translator, LANGUAGES
 
 API_KEY = "0571c8dec7a964f9d24a2b45888aa0f1"  # Замените на ваш API ключ
 
 bot = Bot(token="6943602251:AAHV3rXWQltWOT8aRXyl7pDahm-6x0kd6vU")
 dp = Dispatcher()
+translator = Translator()
 
 @dp.message(Command('help'))
 async def help(message: Message):
-    await message.answer("Этот бот умеет выполнять команды: \n /start \n /help \n /weather")
+    await message.answer("Этот бот умеет выполнять команды: \n /start \n /help \n /weather \n /translate \n /voice \n /training")
 
 @dp.message(CommandStart())
 async def start(message: Message):
@@ -38,6 +42,48 @@ async def get_weather(city: str) -> str:
                         f"Ощущается как: {feels_like}°C")
             else:
                 return "Не удалось получить данные о погоде. Попробуйте позже."
+
+
+@dp.message(Command('translate'))
+async def translate(message: Message):
+    text_to_translate = message.text[len("/translate "):]
+    if not text_to_translate:
+        await message.answer("Пожалуйста, укажите текст для перевода после команды /translate.")
+        return
+
+    try:
+        translated = translator.translate(text_to_translate, dest='en')
+        await message.answer(f"Перевод:\n{translated.text}")
+    except Exception as e:
+        await message.answer(f"Ошибка при переводе: {str(e)}")
+@dp.message(F.photo)
+async def react_photo(message: Message):
+    list = ['Ого, какая фотка!', 'Непонятно, что это такое', 'Не отправляй мне такое больше']
+    rand_answ = random.choice(list)
+    await message.answer(rand_answ)
+    await bot.download(message.photo[-1], destination=f'tmp/{message.photo[-1].file_id}.jpg')
+
+
+@dp.message(Command('training'))
+async def training(message: Message):
+   training_list = [
+       "Тренировка 1:\\n1. Скручивания: 3 подхода по 15 повторений\\n2. Велосипед: 3 подхода по 20 повторений (каждая сторона)\\n3. Планка: 3 подхода по 30 секунд",
+       "Тренировка 2:\\n1. Подъемы ног: 3 подхода по 15 повторений\\n2. Русский твист: 3 подхода по 20 повторений (каждая сторона)\\n3. Планка с поднятой ногой: 3 подхода по 20 секунд (каждая нога)",
+       "Тренировка 3:\\n1. Скручивания с поднятыми ногами: 3 подхода по 15 повторений\\n2. Горизонтальные ножницы: 3 подхода по 20 повторений\\n3. Боковая планка: 3 подхода по 20 секунд (каждая сторона)"
+   ]
+   rand_tr = random.choice(training_list)
+   await message.answer(f"Это ваша мини-тренировка на сегодня {rand_tr}")
+
+   tts = gTTS(text=rand_tr, lang='ru')
+   tts.save("training.ogg")
+   audio = FSInputFile('training.ogg')
+   await bot.send_audio(message.chat.id, audio)
+   os.remove("training.ogg")
+@dp.message(Command('voice'))
+async def voice(message: Message):
+    voice = FSInputFile("sample.ogg")
+    await message.answer_voice(voice)
+
 
 async def main():
     await bot.delete_webhook(drop_pending_updates=True)  # Удаляем вебхуки перед началом работы
