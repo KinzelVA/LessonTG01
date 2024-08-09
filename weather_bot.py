@@ -9,13 +9,14 @@ import os
 from googletrans import Translator, LANGUAGES
 import logging
 import executor
+from config import TOKEN, WEATHER_API_KEY
 
 logging.basicConfig(level=logging.INFO)
 
 
-API_KEY = "0571c8dec7a964f9d24a2b45888aa0f1"  # Замените на ваш API ключ
+API_KEY = WEATHER_API_KEY # Замените на ваш API ключ
 
-bot = Bot(token="6943602251:AAHV3rXWQltWOT8aRXyl7pDahm-6x0kd6vU")
+bot = Bot(token=TOKEN)
 dp = Dispatcher()
 translator = Translator()
 
