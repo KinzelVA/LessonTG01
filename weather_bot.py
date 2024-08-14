@@ -39,7 +39,7 @@ async def hello(message: Message):
 async def goodbye(message: Message):
     user_name = message.from_user.first_name
     await message.answer(f"Пока, {user_name}!")
-    
+
 @dp.message(Command('links'))
 async def send_links(message: Message):
     await message.answer("Выберите ссылку:", reply_markup=kb.url_keyboard)
